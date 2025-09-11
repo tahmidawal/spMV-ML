@@ -31,14 +31,19 @@ def load_model_and_data():
     edge_index, _ = from_scipy_sparse_matrix(K)
     
     # Load trained model
-    checkpoint = torch.load('gnn_best_results_20250911_111202/best_model.pth', map_location='cpu')
+    checkpoint = torch.load('gnn_best_results_20250911_134210/best_model.pth', map_location='cpu')
+    
+    # Get model configuration from checkpoint
+    args = checkpoint.get('args', {})
+    conv_type = args.get('conv_type', 'GCN')
+    hidden_dim = args.get('hidden_dim', 128)
     
     model = BestSpMV_GNN(
         input_dim=1,
-        hidden_dim=96,
+        hidden_dim=hidden_dim,
         output_dim=1,
         num_layers=4,
-        conv_type='GAT',
+        conv_type=conv_type,
         dropout=0.1,
         use_residual=True,
         use_layer_norm=True
@@ -47,7 +52,7 @@ def load_model_and_data():
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
     
-    print(f"Loaded GAT model with val_loss = {checkpoint['val_loss']:.6f}")
+    print(f"Loaded {conv_type} model with val_loss = {checkpoint['val_loss']:.6f}")
     
     return model, X_val, Y_val, ks_val, edge_index, data
 
