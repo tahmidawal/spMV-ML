@@ -14,7 +14,7 @@ import os
 import json
 
 # Import the dense model architectures
-from train_dense_spmv import DenseSpMV_Simple, DenseSpMV_TwoMatrix, DenseSpMV_LowRank
+from train_dense_spmv import DenseSpMV_TwoMatrix, DenseSpMV_Adaptive
 
 
 def load_best_dense_models():
@@ -36,33 +36,33 @@ def load_best_dense_models():
     # Load best models
     models = {}
     
-    # Load two_matrix 2x324 (best performer)
-    checkpoint = torch.load(os.path.join(latest_dir, 'two_matrix_2x324_best.pth'), map_location='cpu')
-    model_2x324 = DenseSpMV_TwoMatrix(vector_dim=648, matrix_shape=(2, 324))
-    model_2x324.load_state_dict(checkpoint['model_state_dict'])
-    model_2x324.eval()
-    models['two_matrix_2x324'] = (model_2x324, checkpoint['val_loss'])
+    # Try to load all available two_matrix models
+    two_matrix_configs = [(2, 324), (3, 216), (4, 162), (6, 108)]
     
-    # Load two_matrix 3x216
-    checkpoint = torch.load(os.path.join(latest_dir, 'two_matrix_3x216_best.pth'), map_location='cpu')
-    model_3x216 = DenseSpMV_TwoMatrix(vector_dim=648, matrix_shape=(3, 216))
-    model_3x216.load_state_dict(checkpoint['model_state_dict'])
-    model_3x216.eval()
-    models['two_matrix_3x216'] = (model_3x216, checkpoint['val_loss'])
+    for m, n in two_matrix_configs:
+        model_file = f'two_matrix_{m}x{n}_best.pth'
+        model_path = os.path.join(latest_dir, model_file)
+        
+        if os.path.exists(model_path):
+            try:
+                checkpoint = torch.load(model_path, map_location='cpu')
+                model = DenseSpMV_TwoMatrix(vector_dim=648, matrix_shape=(m, n))
+                model.load_state_dict(checkpoint['model_state_dict'])
+                model.eval()
+                models[f'two_matrix_{m}x{n}'] = (model, checkpoint['val_loss'])
+                print(f"  Loaded: two_matrix_{m}x{n} (val_loss={checkpoint['val_loss']:.6f})")
+            except Exception as e:
+                print(f"  Warning: Could not load {model_file}: {e}")
     
-    # Load simple model for comparison
-    checkpoint = torch.load(os.path.join(latest_dir, 'simple_3x216_best.pth'), map_location='cpu')
-    model_simple = DenseSpMV_Simple(vector_dim=648, matrix_shape=(3, 216))
-    model_simple.load_state_dict(checkpoint['model_state_dict'])
-    model_simple.eval()
-    models['simple_3x216'] = (model_simple, checkpoint['val_loss'])
+    if not models:
+        raise ValueError("No models could be loaded!")
     
     return models, latest_dir
 
 
 def load_data():
     """Load validation data."""
-    data = np.load('ml_data/fem_forward_spmv_freq_norm_k1k2_1to5_500s_20250910_161619.npz')
+    data = np.load('ml_data/fem_forward_spmv_freq_norm_k1k2_1to5_500s_20250912_012326.npz')
     
     X_val = torch.FloatTensor(data['X_val'])
     Y_val = torch.FloatTensor(data['Y_val'])
@@ -381,6 +381,223 @@ def investigate_perfect_predictions(models, X_val, Y_val, save_dir):
     return W1, W2, bias
 
 
+def create_ood_tests_with_higher_k(models, save_dir):
+    """Test models on higher k-value sine combinations with proper normalization."""
+    
+    print("\n" + "="*60)
+    print("OUT-OF-DISTRIBUTION TESTING: HIGHER K-VALUE SINE COMBINATIONS")
+    print("="*60)
+    
+    # Load the sparse matrix K and mesh data
+    K_sparse = load_npz('ml_data/sparse_matrix_K_20250912_012326.npz')
+    data = np.load('ml_data/fem_forward_spmv_freq_norm_k1k2_1to5_500s_20250912_012326.npz')
+    points = data['points']
+    
+    print(f"Sparse matrix K shape: {K_sparse.shape}, non-zeros: {K_sparse.nnz}")
+    
+    # Get only two_matrix models
+    two_matrix_models = {k: v for k, v in models.items() if 'two_matrix' in k}
+    sorted_models = sorted(two_matrix_models.items(), key=lambda x: x[1][1])
+    
+    # Define OOD k-value ranges (training was k1,k2 ∈ {1,2,3,4,5})
+    ood_k_ranges = {
+        'k6-k8': (6, 8),
+        'k9-k12': (9, 12),
+        'k13-k16': (13, 16),
+        'k17-k20': (17, 20)
+    }
+    
+    n_nodes = len(points)
+    n_samples = 10
+    np.random.seed(123)
+    
+    results = {}
+    
+    for case_name, (k_min, k_max) in ood_k_ranges.items():
+        print(f"\nTesting {case_name}...")
+        
+        # Generate OOD samples
+        inputs = []
+        k_pairs = []
+        true_outputs = []
+        
+        for _ in range(n_samples):
+            k1 = np.random.randint(k_min, k_max + 1)
+            k2 = np.random.randint(k_min, k_max + 1)
+            
+            # Generate sinusoidal field
+            x_field = np.zeros(n_nodes)
+            for i, point in enumerate(points):
+                x, y = point
+                x_field[i] = np.sin(2 * np.pi * k1 * x) * np.sin(2 * np.pi * k2 * y)
+            
+            # Normalize input to [-1, 1]
+            if np.max(np.abs(x_field)) > 0:
+                x_field = x_field / np.max(np.abs(x_field))
+            
+            # Compute true SpMV with frequency-aware normalization
+            y_true_raw = K_sparse.dot(x_field)
+            frequency_factor = k1*k1 + k2*k2
+            reference_frequency = 1*1 + 1*1  # k1=1, k2=1 reference
+            y_true_normalized = y_true_raw * (reference_frequency / frequency_factor)
+            
+            inputs.append(x_field)
+            k_pairs.append((k1, k2))
+            true_outputs.append(y_true_normalized)
+        
+        true_outputs = np.array(true_outputs)
+        print(f"  Frequency factors: {[k1*k1 + k2*k2 for k1, k2 in k_pairs[:3]]}...")
+        print(f"  Normalized output range: [{true_outputs.min():.3f}, {true_outputs.max():.3f}]")
+        
+        # Test each model
+        case_results = {}
+        for model_name, (model, _) in sorted_models:
+            errors = []
+            
+            with torch.no_grad():
+                for i, x in enumerate(inputs):
+                    x_tensor = torch.FloatTensor(x)
+                    y_pred = model(x_tensor.unsqueeze(0)).squeeze().numpy()
+                    error = y_pred - true_outputs[i]
+                    errors.append(error)
+            
+            errors = np.array(errors)
+            mse = np.mean(errors**2)
+            mae = np.mean(np.abs(errors))
+            
+            case_results[model_name] = {'mse': mse, 'mae': mae}
+            print(f"  {model_name}: MSE={mse:.6f}, MAE={mae:.6f}")
+        
+        results[case_name] = case_results
+    
+    # Create OOD visualization
+    create_ood_visualization(ood_k_ranges, results, save_dir)
+    
+    return results
+
+
+def create_ood_visualization(ood_k_ranges, results, save_dir):
+    """Create comprehensive OOD visualization plots."""
+    
+    # Extract data for plotting
+    case_names = list(ood_k_ranges.keys())
+    model_names = list(results[case_names[0]].keys())
+    
+    # Create comprehensive comparison plot
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+    
+    # Plot 1: MSE comparison across k-ranges
+    ax1 = axes[0, 0]
+    x_pos = np.arange(len(case_names))
+    width = 0.8 / len(model_names)
+    
+    for i, model_name in enumerate(model_names):
+        mse_values = [results[case][model_name]['mse'] for case in case_names]
+        bars = ax1.bar(x_pos + i*width, mse_values, width, 
+                      label=model_name.replace('two_matrix_', ''), alpha=0.8)
+        
+        # Add value labels on bars
+        for bar, val in zip(bars, mse_values):
+            ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + bar.get_height()*0.01,
+                    f'{val:.3f}', ha='center', va='bottom', fontsize=8)
+    
+    ax1.set_xlabel('K-value Range')
+    ax1.set_ylabel('MSE')
+    ax1.set_title('OOD Performance: MSE by K-Range')
+    ax1.set_xticks(x_pos + width * (len(model_names)-1) / 2)
+    ax1.set_xticklabels(case_names)
+    ax1.legend()
+    ax1.grid(True, alpha=0.3, axis='y')
+    
+    # Plot 2: MAE comparison across k-ranges
+    ax2 = axes[0, 1]
+    for i, model_name in enumerate(model_names):
+        mae_values = [results[case][model_name]['mae'] for case in case_names]
+        bars = ax2.bar(x_pos + i*width, mae_values, width, 
+                      label=model_name.replace('two_matrix_', ''), alpha=0.8)
+        
+        # Add value labels on bars
+        for bar, val in zip(bars, mae_values):
+            ax2.text(bar.get_x() + bar.get_width()/2, bar.get_height() + bar.get_height()*0.01,
+                    f'{val:.3f}', ha='center', va='bottom', fontsize=8)
+    
+    ax2.set_xlabel('K-value Range')
+    ax2.set_ylabel('MAE')
+    ax2.set_title('OOD Performance: MAE by K-Range')
+    ax2.set_xticks(x_pos + width * (len(model_names)-1) / 2)
+    ax2.set_xticklabels(case_names)
+    ax2.legend()
+    ax2.grid(True, alpha=0.3, axis='y')
+    
+    # Plot 3: Model comparison (average across all k-ranges)
+    ax3 = axes[1, 0]
+    avg_mse = []
+    avg_mae = []
+    
+    for model_name in model_names:
+        mse_vals = [results[case][model_name]['mse'] for case in case_names]
+        mae_vals = [results[case][model_name]['mae'] for case in case_names]
+        avg_mse.append(np.mean(mse_vals))
+        avg_mae.append(np.mean(mae_vals))
+    
+    x_models = np.arange(len(model_names))
+    width_models = 0.35
+    
+    bars1 = ax3.bar(x_models - width_models/2, avg_mse, width_models, 
+                   label='Average MSE', alpha=0.8, color='steelblue')
+    bars2 = ax3.bar(x_models + width_models/2, avg_mae, width_models, 
+                   label='Average MAE', alpha=0.8, color='orange')
+    
+    # Add value labels
+    for bar, val in zip(bars1, avg_mse):
+        ax3.text(bar.get_x() + bar.get_width()/2, bar.get_height() + bar.get_height()*0.01,
+                f'{val:.3f}', ha='center', va='bottom', fontsize=8)
+    for bar, val in zip(bars2, avg_mae):
+        ax3.text(bar.get_x() + bar.get_width()/2, bar.get_height() + bar.get_height()*0.01,
+                f'{val:.3f}', ha='center', va='bottom', fontsize=8)
+    
+    ax3.set_xlabel('Model')
+    ax3.set_ylabel('Error')
+    ax3.set_title('Average OOD Performance Across All K-Ranges')
+    ax3.set_xticks(x_models)
+    ax3.set_xticklabels([name.replace('two_matrix_', '') for name in model_names])
+    ax3.legend()
+    ax3.grid(True, alpha=0.3, axis='y')
+    
+    # Plot 4: Heatmap of MSE values
+    ax4 = axes[1, 1]
+    mse_matrix = np.zeros((len(case_names), len(model_names)))
+    
+    for i, case in enumerate(case_names):
+        for j, model in enumerate(model_names):
+            mse_matrix[i, j] = results[case][model]['mse']
+    
+    im = ax4.imshow(mse_matrix, cmap='hot', aspect='auto')
+    ax4.set_xticks(range(len(model_names)))
+    ax4.set_xticklabels([name.replace('two_matrix_', '') for name in model_names])
+    ax4.set_yticks(range(len(case_names)))
+    ax4.set_yticklabels(case_names)
+    ax4.set_title('OOD MSE Heatmap')
+    
+    # Add text annotations
+    for i in range(len(case_names)):
+        for j in range(len(model_names)):
+            text = ax4.text(j, i, f'{mse_matrix[i, j]:.3f}',
+                           ha="center", va="center", color="white", fontweight='bold')
+    
+    plt.colorbar(im, ax=ax4, fraction=0.046, pad=0.04)
+    
+    plt.suptitle('Out-of-Distribution Performance Analysis\nHigher K-Value Sine Combinations with Frequency-Aware Normalization', 
+                 fontsize=14, fontweight='bold')
+    plt.tight_layout()
+    
+    # Save the plot
+    save_path = os.path.join(save_dir, 'ood_performance_analysis.png')
+    plt.savefig(save_path, dpi=200, bbox_inches='tight')
+    print(f"\n✅ OOD performance analysis saved to: {save_path}")
+    plt.close()
+
+
 def main():
     print("="*80)
     print("DENSE MATRIX MODEL VISUALIZATION & INVESTIGATION")
@@ -410,20 +627,32 @@ def main():
     create_detailed_comparison_plots(models, X_val, Y_val, ks_val, triang, save_dir)
     create_2d_field_comparison(models, X_val, Y_val, ks_val, triang, save_dir)
     
+    # Test on higher k-values with proper normalization
+    ood_results = create_ood_tests_with_higher_k(models, save_dir)
+    
     # Investigate perfect predictions
     W1, W2, bias = investigate_perfect_predictions(models, X_val, Y_val, save_dir)
     
     # Summary statistics
     print("\n" + "="*60)
-    print("SUMMARY")
+    print("SUMMARY WITH FREQUENCY-AWARE NORMALIZATION")
     print("="*60)
     
+    print("\n--- In-Distribution Performance ---")
     for model_name in all_metrics:
         metrics = all_metrics[model_name]
         print(f"\n{model_name}:")
         print(f"  Mean MSE: {np.mean(metrics['mse']):.6e}")
         print(f"  Mean MAE: {np.mean(metrics['mae']):.6e}")
         print(f"  Mean Max Error: {np.mean(metrics['max_error']):.6e}")
+    
+    print("\n--- Out-of-Distribution Performance (Higher K-Values) ---")
+    for case_name in ood_results:
+        print(f"\n{case_name}:")
+        for model_name in sorted(ood_results[case_name].keys()):
+            mse = ood_results[case_name][model_name]['mse']
+            mae = ood_results[case_name][model_name]['mae']
+            print(f"  {model_name}: MSE={mse:.6f}, MAE={mae:.6f}")
     
     print(f"\n✅ All visualizations saved to: {save_dir}")
     print("\n⚠️ Check the plots carefully for signs of overfitting or memorization!")

@@ -1,0 +1,51 @@
+# # Python
+# __pycache__/
+# *.py[cod]
+# *$py.class
+# *.so
+# .Python
+# env/
+# venv/
+# .venv/
+# pip-log.txt
+# pip-delete-this-directory.txt
+
+# # PyTorch
+# *.pth
+# *.pt
+
+# # Large data files
+# *.npz
+# *.npy
+
+# # Plot directories (too many files)
+# *_overlay_plots_*/
+# *_results_*/
+# *_comparison_*/
+# *_analysis_*/
+
+# # Large image files
+# *.png
+# *.jpg
+# *.jpeg
+# *.svg
+# *.eps
+# *.pdf
+
+# # OS
+# .DS_Store
+# .DS_Store?
+# ._*
+# .Spotlight-V100
+# .Trashes
+# ehthumbs.db
+# Thumbs.db
+
+# # IDE
+# .vscode/
+# .idea/
+# *.swp
+# *.swo
+
+# # Logs
+# *.log
