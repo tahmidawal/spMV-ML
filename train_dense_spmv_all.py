@@ -20,6 +20,49 @@ from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
 
+class DenseSpMV_Simple(nn.Module):
+    """
+    Simple dense matrix approach: Learn a single dense matrix W
+    Reshape vector to matrix, apply W, reshape back
+    """
+    def __init__(self, vector_dim=648, matrix_shape=(24, 27)):
+        super().__init__()
+        self.vector_dim = vector_dim
+        self.m, self.n = matrix_shape
+        assert self.m * self.n == vector_dim, f"Matrix shape {matrix_shape} doesn't match vector dim {vector_dim}"
+        
+        # Learn a dense transformation matrix
+        self.W = nn.Parameter(torch.randn(self.m, self.m) * 0.02)
+        
+        # Optional bias
+        self.bias = nn.Parameter(torch.zeros(vector_dim))
+        
+        self.total_params = self.m * self.m + vector_dim
+        
+    def forward(self, x):
+        """
+        x: [batch, vector_dim] or [vector_dim]
+        """
+        if x.dim() == 1:
+            x = x.unsqueeze(0)
+        
+        batch_size = x.shape[0]
+        
+        # Reshape to matrix [batch, m, n]
+        X_in = x.view(batch_size, self.m, self.n)
+        
+        # Dense matrix multiplication [batch, m, m] @ [batch, m, n] = [batch, m, n]
+        X_out = torch.bmm(self.W.unsqueeze(0).expand(batch_size, -1, -1), X_in)
+        
+        # Reshape back to vector
+        y = X_out.view(batch_size, self.vector_dim)
+        
+        # Add bias
+        y = y + self.bias
+        
+        return y.squeeze() if batch_size == 1 else y
+
+
 class DenseSpMV_TwoMatrix(nn.Module):
     """
     Two-matrix approach: Y = W1 @ X @ W2^T
@@ -51,6 +94,48 @@ class DenseSpMV_TwoMatrix(nn.Module):
         # Two matrix multiplications: W1 @ X @ W2^T
         X_temp = torch.bmm(self.W1.unsqueeze(0).expand(batch_size, -1, -1), X_in)
         X_out = torch.bmm(X_temp, self.W2.t().unsqueeze(0).expand(batch_size, -1, -1))
+        
+        # Reshape back
+        y = X_out.view(batch_size, self.vector_dim)
+        y = y + self.bias
+        
+        return y.squeeze() if batch_size == 1 else y
+
+
+class DenseSpMV_LowRank(nn.Module):
+    """
+    Low-rank factorization: W = U @ V^T
+    Reduces parameters while maintaining expressiveness
+    """
+    def __init__(self, vector_dim=648, matrix_shape=(24, 27), rank=8):
+        super().__init__()
+        self.vector_dim = vector_dim
+        self.m, self.n = matrix_shape
+        self.rank = rank
+        assert self.m * self.n == vector_dim
+        
+        # Low-rank factors
+        self.U = nn.Parameter(torch.randn(self.m, rank) * 0.1)
+        self.V = nn.Parameter(torch.randn(self.m, rank) * 0.1)
+        
+        self.bias = nn.Parameter(torch.zeros(vector_dim))
+        
+        self.total_params = 2 * self.m * rank + vector_dim
+        
+    def forward(self, x):
+        if x.dim() == 1:
+            x = x.unsqueeze(0)
+        
+        batch_size = x.shape[0]
+        
+        # Compute W = U @ V^T
+        W = torch.mm(self.U, self.V.t())
+        
+        # Reshape to matrix
+        X_in = x.view(batch_size, self.m, self.n)
+        
+        # Dense multiplication
+        X_out = torch.bmm(W.unsqueeze(0).expand(batch_size, -1, -1), X_in)
         
         # Reshape back
         y = X_out.view(batch_size, self.vector_dim)
@@ -219,9 +304,9 @@ def benchmark_inference_speed(model, X_val, device='cpu', num_runs=100):
 
 def main():
     parser = argparse.ArgumentParser(description='Train Dense Matrix SpMV models')
-    parser.add_argument('--model', type=str, default='two_matrix', 
-                       choices=['two_matrix', 'adaptive', 'all'])
-    parser.add_argument('--epochs', type=int, default=500)
+    parser.add_argument('--model', type=str, default='simple', 
+                       choices=['simple', 'two_matrix', 'low_rank', 'adaptive', 'all'])
+    parser.add_argument('--epochs', type=int, default=150)
     parser.add_argument('--batch-size', type=int, default=32)
     parser.add_argument('--lr', type=float, default=0.001)
     parser.add_argument('--weight-decay', type=float, default=1e-5)
@@ -244,17 +329,14 @@ def main():
     
     # Determine shapes to try
     if args.matrix_shape == 'auto':
-        # Include specific shapes we want to test
-        shapes_to_try = [(2, 324), (3, 216), (4, 162), (6, 108)]
+        shapes_to_try = valid_shapes[:3]  # Try first 3 shapes
     else:
         m, n = map(int, args.matrix_shape.split(','))
         shapes_to_try = [(m, n)]
     
-    print(f"Shapes to be tested: {shapes_to_try}")
-    
     # Determine models to train
     if args.model == 'all':
-        model_types = ['two_matrix', 'adaptive']
+        model_types = ['simple', 'two_matrix', 'low_rank']
     else:
         model_types = [args.model]
     
@@ -276,8 +358,12 @@ def main():
             print(f"{'='*60}")
             
             # Create model
-            if model_type == 'two_matrix':
+            if model_type == 'simple':
+                model = DenseSpMV_Simple(vector_dim=648, matrix_shape=shape)
+            elif model_type == 'two_matrix':
                 model = DenseSpMV_TwoMatrix(vector_dim=648, matrix_shape=shape)
+            elif model_type == 'low_rank':
+                model = DenseSpMV_LowRank(vector_dim=648, matrix_shape=shape, rank=16)
             elif model_type == 'adaptive':
                 model = DenseSpMV_Adaptive(vector_dim=648, matrix_shape=shape)
             

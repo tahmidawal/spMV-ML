@@ -1,0 +1,50 @@
+{
+  "two_matrix_2x324": {
+    "model_type": "two_matrix",
+    "matrix_shape": [
+      2,
+      324
+    ],
+    "parameters": 105628,
+    "best_val_loss": 7.206026390251961e-16,
+    "final_train_loss": 7.508172245876324e-16,
+    "inference_time_ms": 0.12740135192871094,
+    "throughput_samples_per_sec": 78492.10270229807
+  },
+  "two_matrix_3x216": {
+    "model_type": "two_matrix",
+    "matrix_shape": [
+      3,
+      216
+    ],
+    "parameters": 47313,
+    "best_val_loss": 8.526824732402183e-11,
+    "final_train_loss": 7.287762540877715e-11,
+    "inference_time_ms": 0.08129119873046875,
+    "throughput_samples_per_sec": 123014.5471609573
+  },
+  "two_matrix_4x162": {
+    "model_type": "two_matrix",
+    "matrix_shape": [
+      4,
+      162
+    ],
+    "parameters": 26908,
+    "best_val_loss": 1.3746032578865197e-07,
+    "final_train_loss": 1.186552810194231e-07,
+    "inference_time_ms": 0.06105899810791016,
+    "throughput_samples_per_sec": 163776.02499023816
+  },
+  "two_matrix_6x108": {
+    "model_type": "two_matrix",
+    "matrix_shape": [
+      6,
+      108
+    ],
+    "parameters": 12348,
+    "best_val_loss": 0.002260846784338355,
+    "final_train_loss": 0.0021957870250424514,
+    "inference_time_ms": 0.05192995071411133,
+    "throughput_samples_per_sec": 192567.09976585096
+  }
+}
