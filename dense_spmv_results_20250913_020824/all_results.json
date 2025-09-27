@@ -1,0 +1,36 @@
+{
+  "single_matrix_16x89": {
+    "model_type": "single_matrix",
+    "matrix_shape": [
+      16,
+      89
+    ],
+    "parameters": 1680,
+    "best_val_loss": 0.026307685766369104,
+    "final_train_loss": 0.027122877687215805,
+    "inference_time_ms": 0.02599954605102539,
+    "throughput_samples_per_sec": 384622.0999541495,
+    "validation_metrics": {
+      "overall_mse": 0.026307687163352966,
+      "overall_mae": 0.11418120563030243,
+      "r2_score": 0.3837658166885376,
+      "mean_error": -0.00023361551575362682,
+      "std_error": 0.16219627857208252,
+      "norm_correlation": 0.5120646121908651
+    },
+    "ood_metrics": {
+      "ood_overall_mse": 0.0344061516225338,
+      "ood_overall_mae": 0.1292700618505478,
+      "ood_type_mses": {
+        "gaussian": 0.04543085768818855,
+        "uniform": 0.061027053743600845,
+        "polynomial": 0.010958765633404255,
+        "exponential": 0.03157385438680649,
+        "step": 0.04878998175263405,
+        "sawtooth": 0.02966953068971634,
+        "mixed": 0.012755910865962505
+      },
+      "ood_n_samples": 200
+    }
+  }
+}

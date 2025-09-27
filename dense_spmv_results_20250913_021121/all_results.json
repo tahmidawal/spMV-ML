@@ -1,0 +1,138 @@
+{
+  "two_matrix_2x712": {
+    "model_type": "two_matrix",
+    "matrix_shape": [
+      2,
+      712
+    ],
+    "parameters": 508372,
+    "best_val_loss": 0.00517418107483536,
+    "final_train_loss": 0.0047591439075768,
+    "inference_time_ms": 1.0927104949951172,
+    "throughput_samples_per_sec": 9151.554822436921,
+    "validation_metrics": {
+      "overall_mse": 0.005187817849218845,
+      "overall_mae": 0.04964502155780792,
+      "r2_score": 0.8861803412437439,
+      "mean_error": -0.0006120080943219364,
+      "std_error": 0.072023905813694,
+      "norm_correlation": 0.9736016985954562
+    },
+    "ood_metrics": {
+      "ood_overall_mse": 0.0419258251786232,
+      "ood_overall_mae": 0.1416844129562378,
+      "ood_type_mses": {
+        "gaussian": 0.06749117374420166,
+        "uniform": 0.09064192324876785,
+        "polynomial": 0.02674187533557415,
+        "exponential": 0.02266705222427845,
+        "step": 0.03651917725801468,
+        "sawtooth": 0.023860689252614975,
+        "mixed": 0.026171913370490074
+      },
+      "ood_n_samples": 200
+    }
+  },
+  "two_matrix_4x356": {
+    "model_type": "two_matrix",
+    "matrix_shape": [
+      4,
+      356
+    ],
+    "parameters": 128176,
+    "best_val_loss": 0.008583954069763422,
+    "final_train_loss": 0.00824826404452324,
+    "inference_time_ms": 0.15967845916748047,
+    "throughput_samples_per_sec": 62625.854809328994,
+    "validation_metrics": {
+      "overall_mse": 0.008589593693614006,
+      "overall_mae": 0.06599178910255432,
+      "r2_score": 0.8101821541786194,
+      "mean_error": 0.0002018019004026428,
+      "std_error": 0.09267985075712204,
+      "norm_correlation": 0.9600551924253696
+    },
+    "ood_metrics": {
+      "ood_overall_mse": 0.0400625504553318,
+      "ood_overall_mae": 0.14533011615276337,
+      "ood_type_mses": {
+        "gaussian": 0.06699883937835693,
+        "uniform": 0.08992652595043182,
+        "polynomial": 0.02215900644659996,
+        "exponential": 0.02203333005309105,
+        "step": 0.034987762570381165,
+        "sawtooth": 0.02228657528758049,
+        "mixed": 0.022543834522366524
+      },
+      "ood_n_samples": 200
+    }
+  },
+  "two_matrix_8x178": {
+    "model_type": "two_matrix",
+    "matrix_shape": [
+      8,
+      178
+    ],
+    "parameters": 33172,
+    "best_val_loss": 0.009463179390877485,
+    "final_train_loss": 0.009143393896520137,
+    "inference_time_ms": 0.07966041564941406,
+    "throughput_samples_per_sec": 125532.86244463066,
+    "validation_metrics": {
+      "overall_mse": 0.009469815529882908,
+      "overall_mae": 0.0696321353316307,
+      "r2_score": 0.788752019405365,
+      "mean_error": 5.11177750013303e-05,
+      "std_error": 0.09731296449899673,
+      "norm_correlation": 0.9556957036157019
+    },
+    "ood_metrics": {
+      "ood_overall_mse": 0.04327455535531044,
+      "ood_overall_mae": 0.1538635492324829,
+      "ood_type_mses": {
+        "gaussian": 0.06627161800861359,
+        "uniform": 0.08881420642137527,
+        "polynomial": 0.030446065589785576,
+        "exponential": 0.025922922417521477,
+        "step": 0.04187474399805069,
+        "sawtooth": 0.019943512976169586,
+        "mixed": 0.030330438166856766
+      },
+      "ood_n_samples": 200
+    }
+  },
+  "two_matrix_16x89": {
+    "model_type": "two_matrix",
+    "matrix_shape": [
+      16,
+      89
+    ],
+    "parameters": 9601,
+    "best_val_loss": 0.00946457777172327,
+    "final_train_loss": 0.0091558931581676,
+    "inference_time_ms": 0.049779415130615234,
+    "throughput_samples_per_sec": 200886.24934144356,
+    "validation_metrics": {
+      "overall_mse": 0.009471983648836613,
+      "overall_mae": 0.06962420791387558,
+      "r2_score": 0.7899516224861145,
+      "mean_error": 0.00014748175453860313,
+      "std_error": 0.09732400625944138,
+      "norm_correlation": 0.9519806450127066
+    },
+    "ood_metrics": {
+      "ood_overall_mse": 0.04395097866654396,
+      "ood_overall_mae": 0.15599164366722107,
+      "ood_type_mses": {
+        "gaussian": 0.06514812260866165,
+        "uniform": 0.08751652389764786,
+        "polynomial": 0.03414793312549591,
+        "exponential": 0.02697048895061016,
+        "step": 0.04351063072681427,
+        "sawtooth": 0.017195282503962517,
+        "mixed": 0.03398854658007622
+      },
+      "ood_n_samples": 200
+    }
+  }
+}

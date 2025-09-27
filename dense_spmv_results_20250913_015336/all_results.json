@@ -1,0 +1,22 @@
+{
+  "single_matrix_16x89": {
+    "model_type": "single_matrix",
+    "matrix_shape": [
+      16,
+      89
+    ],
+    "parameters": 1680,
+    "best_val_loss": 0.02827352937310934,
+    "final_train_loss": 0.02785621426999569,
+    "inference_time_ms": 0.024356842041015625,
+    "throughput_samples_per_sec": 410562.25528582616,
+    "validation_metrics": {
+      "overall_mse": 0.028273528441786766,
+      "overall_mae": 0.11799361556768417,
+      "r2_score": 0.36070406436920166,
+      "mean_error": 0.0003096833825111389,
+      "std_error": 0.1681470423936844,
+      "norm_correlation": 0.5168351124843213
+    }
+  }
+}

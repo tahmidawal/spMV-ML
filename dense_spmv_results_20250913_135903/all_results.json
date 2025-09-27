@@ -1,0 +1,138 @@
+{
+  "two_matrix_2x712": {
+    "model_type": "two_matrix",
+    "matrix_shape": [
+      2,
+      712
+    ],
+    "parameters": 508372,
+    "best_val_loss": 0.005673726477349798,
+    "final_train_loss": 0.0037592653993909295,
+    "inference_time_ms": 1.0624480247497559,
+    "throughput_samples_per_sec": 9412.225132006204,
+    "validation_metrics": {
+      "overall_mse": 0.0056792669929564,
+      "overall_mae": 0.0520465187728405,
+      "r2_score": 0.8294805288314819,
+      "mean_error": -0.00039069209014996886,
+      "std_error": 0.07535989582538605,
+      "norm_correlation": 0.9762728417664559
+    },
+    "ood_metrics": {
+      "ood_overall_mse": 0.024132391437888145,
+      "ood_overall_mae": 0.10552361607551575,
+      "ood_type_mses": {
+        "gaussian": 0.04708769544959068,
+        "uniform": 0.0629638135433197,
+        "polynomial": 0.006576335523277521,
+        "exponential": 0.011221052147448063,
+        "step": 0.018667204305529594,
+        "sawtooth": 0.01584426872432232,
+        "mixed": 0.006698847748339176
+      },
+      "ood_n_samples": 200
+    }
+  },
+  "two_matrix_4x356": {
+    "model_type": "two_matrix",
+    "matrix_shape": [
+      4,
+      356
+    ],
+    "parameters": 128176,
+    "best_val_loss": 0.007774546043947339,
+    "final_train_loss": 0.006937900472334341,
+    "inference_time_ms": 0.14913082122802734,
+    "throughput_samples_per_sec": 67055.21982414069,
+    "validation_metrics": {
+      "overall_mse": 0.007775177247822285,
+      "overall_mae": 0.061545759439468384,
+      "r2_score": 0.7438534498214722,
+      "mean_error": -0.0006033355020917952,
+      "std_error": 0.08817490190267563,
+      "norm_correlation": 0.9494753881922685
+    },
+    "ood_metrics": {
+      "ood_overall_mse": 0.018376726657152176,
+      "ood_overall_mae": 0.09790926426649094,
+      "ood_type_mses": {
+        "gaussian": 0.02501285821199417,
+        "uniform": 0.0337078683078289,
+        "polynomial": 0.008365298621356487,
+        "exponential": 0.0153343565762043,
+        "step": 0.025042735040187836,
+        "sawtooth": 0.012863289564847946,
+        "mixed": 0.008141173981130123
+      },
+      "ood_n_samples": 200
+    }
+  },
+  "two_matrix_8x178": {
+    "model_type": "two_matrix",
+    "matrix_shape": [
+      8,
+      178
+    ],
+    "parameters": 33172,
+    "best_val_loss": 0.008203641045838594,
+    "final_train_loss": 0.007567537446065168,
+    "inference_time_ms": 0.07917165756225586,
+    "throughput_samples_per_sec": 126307.82666305297,
+    "validation_metrics": {
+      "overall_mse": 0.00820609088987112,
+      "overall_mae": 0.06286616623401642,
+      "r2_score": 0.7503044605255127,
+      "mean_error": -0.0007201721309684217,
+      "std_error": 0.09058461338281631,
+      "norm_correlation": 0.9427662721191771
+    },
+    "ood_metrics": {
+      "ood_overall_mse": 0.014397656545042992,
+      "ood_overall_mae": 0.08553217351436615,
+      "ood_type_mses": {
+        "gaussian": 0.018821515142917633,
+        "uniform": 0.02544841170310974,
+        "polynomial": 0.005398527719080448,
+        "exponential": 0.010767806321382523,
+        "step": 0.0200563445687294,
+        "sawtooth": 0.013282296247780323,
+        "mixed": 0.006818083114922047
+      },
+      "ood_n_samples": 200
+    }
+  },
+  "two_matrix_16x89": {
+    "model_type": "two_matrix",
+    "matrix_shape": [
+      16,
+      89
+    ],
+    "parameters": 9601,
+    "best_val_loss": 0.007714669220149517,
+    "final_train_loss": 0.007069942186047372,
+    "inference_time_ms": 0.07480859756469727,
+    "throughput_samples_per_sec": 133674.47493386877,
+    "validation_metrics": {
+      "overall_mse": 0.007721446920186281,
+      "overall_mae": 0.060316722840070724,
+      "r2_score": 0.7684640288352966,
+      "mean_error": -0.00046150569687597454,
+      "std_error": 0.08787055313587189,
+      "norm_correlation": 0.9605809487031374
+    },
+    "ood_metrics": {
+      "ood_overall_mse": 0.012612100690603256,
+      "ood_overall_mae": 0.077164426445961,
+      "ood_type_mses": {
+        "gaussian": 0.018122337758541107,
+        "uniform": 0.024723606184124947,
+        "polynomial": 0.0034196744672954082,
+        "exponential": 0.00805619265884161,
+        "step": 0.0159512497484684,
+        "sawtooth": 0.012837509624660015,
+        "mixed": 0.005012742709368467
+      },
+      "ood_n_samples": 200
+    }
+  }
+}

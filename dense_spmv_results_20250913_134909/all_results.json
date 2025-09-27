@@ -1,0 +1,138 @@
+{
+  "adaptive_2x712": {
+    "model_type": "adaptive",
+    "matrix_shape": [
+      2,
+      712
+    ],
+    "parameters": 4565348,
+    "best_val_loss": 0.001626382872927934,
+    "final_train_loss": 1.4228109044348744e-05,
+    "inference_time_ms": 2.6982998847961426,
+    "throughput_samples_per_sec": 3706.037292721266,
+    "validation_metrics": {
+      "overall_mse": 0.0016263829311355948,
+      "overall_mae": 0.014805560931563377,
+      "r2_score": 0.941788375377655,
+      "mean_error": 8.70912572281668e-07,
+      "std_error": 0.04032843932509422,
+      "norm_correlation": 0.9761471058702318
+    },
+    "ood_metrics": {
+      "ood_overall_mse": 0.018391702324151993,
+      "ood_overall_mae": 0.06893759220838547,
+      "ood_type_mses": {
+        "gaussian": 0.05030487850308418,
+        "uniform": 0.06805546581745148,
+        "polynomial": 0.00046690291492268443,
+        "exponential": 0.0002736107853706926,
+        "step": 0.00164312485139817,
+        "sawtooth": 0.007775658741593361,
+        "mixed": 0.0007068975828588009
+      },
+      "ood_n_samples": 200
+    }
+  },
+  "adaptive_4x356": {
+    "model_type": "adaptive",
+    "matrix_shape": [
+      4,
+      356
+    ],
+    "parameters": 4185152,
+    "best_val_loss": 0.0016246387385763228,
+    "final_train_loss": 1.0634257505085101e-05,
+    "inference_time_ms": 1.8140602111816406,
+    "throughput_samples_per_sec": 5512.496188583625,
+    "validation_metrics": {
+      "overall_mse": 0.0016246386803686619,
+      "overall_mae": 0.014715739525854588,
+      "r2_score": 0.9416134357452393,
+      "mean_error": 2.3545089788967744e-06,
+      "std_error": 0.040306806564331055,
+      "norm_correlation": 0.9762119001239778
+    },
+    "ood_metrics": {
+      "ood_overall_mse": 0.01842205785214901,
+      "ood_overall_mae": 0.06912757456302643,
+      "ood_type_mses": {
+        "gaussian": 0.05043702945113182,
+        "uniform": 0.06809151917695999,
+        "polynomial": 0.0004680638376157731,
+        "exponential": 0.0002737377071753144,
+        "step": 0.0016573105240240693,
+        "sawtooth": 0.007768398150801659,
+        "mixed": 0.0007423320203088224
+      },
+      "ood_n_samples": 200
+    }
+  },
+  "adaptive_8x178": {
+    "model_type": "adaptive",
+    "matrix_shape": [
+      8,
+      178
+    ],
+    "parameters": 4090148,
+    "best_val_loss": 0.0016005505458451807,
+    "final_train_loss": 6.161609457415962e-06,
+    "inference_time_ms": 1.065351963043213,
+    "throughput_samples_per_sec": 9386.5692718439,
+    "validation_metrics": {
+      "overall_mse": 0.001600550371222198,
+      "overall_mae": 0.014510288834571838,
+      "r2_score": 0.9514890313148499,
+      "mean_error": 4.0597578276901913e-07,
+      "std_error": 0.04000687971711159,
+      "norm_correlation": 0.9766432971689175
+    },
+    "ood_metrics": {
+      "ood_overall_mse": 0.018135419115424156,
+      "ood_overall_mae": 0.06816927343606949,
+      "ood_type_mses": {
+        "gaussian": 0.04983014613389969,
+        "uniform": 0.06715970486402512,
+        "polynomial": 0.0004165954305790365,
+        "exponential": 0.00024319639487657696,
+        "step": 0.0015828865580260754,
+        "sawtooth": 0.007482598070055246,
+        "mixed": 0.0007114781765267253
+      },
+      "ood_n_samples": 200
+    }
+  },
+  "adaptive_16x89": {
+    "model_type": "adaptive",
+    "matrix_shape": [
+      16,
+      89
+    ],
+    "parameters": 4066577,
+    "best_val_loss": 0.0015942940178016822,
+    "final_train_loss": 5.064093123134003e-06,
+    "inference_time_ms": 1.0408496856689453,
+    "throughput_samples_per_sec": 9607.5352067509,
+    "validation_metrics": {
+      "overall_mse": 0.0015942943282425404,
+      "overall_mae": 0.014469641260802746,
+      "r2_score": 0.9508532881736755,
+      "mean_error": -2.8835879675170872e-06,
+      "std_error": 0.0399286150932312,
+      "norm_correlation": 0.9770385410836089
+    },
+    "ood_metrics": {
+      "ood_overall_mse": 0.018099062144756317,
+      "ood_overall_mae": 0.06833290308713913,
+      "ood_type_mses": {
+        "gaussian": 0.04979730397462845,
+        "uniform": 0.06692773848772049,
+        "polynomial": 0.00043950628605671227,
+        "exponential": 0.0002556090767029673,
+        "step": 0.0015935960691422224,
+        "sawtooth": 0.0074311187490820885,
+        "mixed": 0.0007242264109663665
+      },
+      "ood_n_samples": 200
+    }
+  }
+}
