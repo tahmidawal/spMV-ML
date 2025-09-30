@@ -1,0 +1,9 @@
+jax
+jax[cuda12]
+absl-py
+vtk
+gmsh
+numpy
+scipy
+vtk
+nvtx
